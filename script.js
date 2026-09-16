@@ -523,34 +523,27 @@ revealButton.addEventListener("click", async () => {
             const personData = currentData.results[selectedPerson.id];
             if (!personData) return currentData;
 
-            // 🧩 Solo si aún no ha sido revelado
-            if (!personData.revealed) {
-                personData.revealed = true;
-                personData.passwordHash = passwordHash;
-                currentData.results[selectedPerson.id] = personData;
-            }
+            // 🧩 Actualizar los datos
+            personData.revealed = true;
+            personData.passwordHash = passwordHash;
 
+            currentData.results[selectedPerson.id] = personData;
             return { ...currentData };
         });
 
         console.log("Resultado actualizado:", transactionResult.snapshot.val());
 
+        // 🧩 Mostrar la contraseña generada al usuario
+        generatedPassword.textContent = password;
+
+        // 🧩 Mostrar el resultado en pantalla
         const updatedData = transactionResult.snapshot.val().results[selectedPerson.id];
+        secretName.textContent = updatedData.targetCharacter;
+        secretWish.textContent = updatedData.targetWish;
 
-        // 🧩 Mostrar contraseña SOLO la primera vez
-        if (!currentData.revealed) {
-            generatedPassword.textContent = password;
-            secretName.textContent = updatedData.targetCharacter;
-            secretWish.textContent = updatedData.targetWish;
-
-            firstTimeSection.classList.remove("hidden");
-            resultSection.classList.add("hidden");
-        } else {
-            // Si ya estaba revelado, no mostrar contraseña
-            resultText.textContent = `🎁 Te tocó: ${updatedData.targetCharacter} (${updatedData.targetWish})`;
-            firstTimeSection.classList.add("hidden");
-            resultSection.classList.remove("hidden");
-        }
+        // Mostrar la sección de primera consulta con la contraseña visible
+        firstTimeSection.classList.remove("hidden");
+        resultSection.classList.add("hidden");
 
     } catch (error) {
         console.error(error);
