@@ -702,13 +702,14 @@ revealButton.addEventListener(
                     // Si ya fue revelado, no sobrescribimos
                     if (personData.revealed === true) return;
 
+                    // ✅ Actualizar datos
                     personData.revealed = true;
                     personData.passwordHash = passwordHash;
 
-                       // 🔄 Forzar actualización del nodo
-    game.results[selectedPerson.id] = personData;
-                   
-                    // ✅ Aseguramos que la transacción devuelva el juego actualizado
+                    // 🔄 Forzar actualización del nodo
+                    game.results[selectedPerson.id] = personData;
+
+                    // ✅ Asegurar que Firebase detecte el cambio
                     return game;
                 }
             );
