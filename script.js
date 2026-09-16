@@ -332,236 +332,102 @@ async function getGameData() {
    =========================================================
 
    El primer participante que entre genera el sorteo.
-
    Después todos utilizan el mismo resultado.
-
    =========================================================
 */
 
 async function createGameIfNeeded() {
 
-    const existingGame =
-        await getGameData();
+    const existingGame = await getGameData();
 
     if (existingGame) {
-
         return existingGame;
-
     }
 
+    // Crear lista de personajes
+    const characters = participants.map(person => person.character);
 
-    /*
-        Crear lista de personajes.
-    */
-
-    const characters =
-        participants.map(
-            person => person.character
-        );
-
-
-    /*
-        Verificar que no existan personajes repetidos.
-    */
-
-    const uniqueCharacters =
-        new Set(characters);
-
-    if (
-        uniqueCharacters.size !==
-        participants.length
-    ) {
-
-        throw new Error(
-            "Hay personajes repetidos. Cada personaje debe ser diferente."
-        );
-
+    // Verificar que no existan personajes repetidos
+    const uniqueCharacters = new Set(characters);
+    if (uniqueCharacters.size !== participants.length) {
+        throw new Error("Hay personajes repetidos. Cada personaje debe ser diferente.");
     }
 
+    // Hacer una copia para mezclar
+    const shuffled = [...participants];
 
-    /*
-        Hacer una copia para mezclar.
-    */
-
-    const shuffled =
-        [...participants];
-
-
-    /*
-        Mezclar personajes.
-
-        Fisher-Yates.
-    */
-
-    for (
-        let i = shuffled.length - 1;
-        i > 0;
-        i--
-    ) {
-
-        const j =
-            Math.floor(
-                Math.random() * (i + 1)
-            );
-
-        [
-            shuffled[i],
-            shuffled[j]
-        ] =
-        [
-            shuffled[j],
-            shuffled[i]
-        ];
-
+    // Mezclar personajes (Fisher-Yates)
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
 
-
-    /*
-        Evitar que una persona se tenga a sí misma.
-
-        Si ocurre, intentamos mezclar nuevamente.
-    */
-
+    // Evitar que una persona se tenga a sí misma
     let valid = false;
-
     let attempts = 0;
-
     while (!valid && attempts < 1000) {
-
         valid = true;
-
         for (let i = 0; i < participants.length; i++) {
-
-            if (
-                participants[i].id ===
-                shuffled[i].id
-            ) {
-
+            if (participants[i].id === shuffled[i].id) {
                 valid = false;
-
                 break;
-
             }
-
         }
-
         if (!valid) {
-
-            for (
-                let i = shuffled.length - 1;
-                i > 0;
-                i--
-            ) {
-
-                const j =
-                    Math.floor(
-                        Math.random() * (i + 1)
-                    );
-
-                [
-                    shuffled[i],
-                    shuffled[j]
-                ] =
-                [
-                    shuffled[j],
-                    shuffled[i]
-                ];
-
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
             }
-
         }
-
         attempts++;
-
     }
-
 
     if (!valid) {
-
-        throw new Error(
-            "No fue posible generar un sorteo válido."
-        );
-
+        throw new Error("No fue posible generar un sorteo válido.");
     }
 
-
-    /*
-        Crear resultados.
-
-        Cada persona recibe el personaje
-        de otra persona.
-    */
-
+    // Crear resultados
     const results = {};
-
-
     participants.forEach((person, index) => {
-
         results[person.id] = {
-
-            name:
-                person.name,
-
-            targetId:
-                shuffled[index].id,
-
-            targetCharacter:
-                shuffled[index].character,
-
-            targetWish:
-                shuffled[index].wish,
-
-            revealed:
-                false,
-
-            passwordHash:
-                null
-
+            name: person.name,
+            targetId: shuffled[index].id,
+            targetCharacter: shuffled[index].character,
+            targetWish: shuffled[index].wish,
+            revealed: false,
+            passwordHash: null
         };
-
     });
 
-
     const newGame = {
-
-        createdAt:
-            Date.now(),
-
+        createdAt: Date.now(),
         results
-
     };
 
+    // Guardar solamente si todavía no existe
+    const gameReference = ref(database, "secretGame");
 
-    /*
-        Guardar solamente si todavía no existe.
+    console.log("Iniciando transacción en Firebase...");
 
-        Esto ayuda a evitar que dos celulares creen
-        dos sorteos diferentes al mismo tiempo.
-    */
-
-    const gameReference =
-        ref(database, "secretGame");
-
-console.log("Iniciando transacción en Firebase...");
-
-const transactionResult =
-    await runTransaction(
-        gameReference,
-        current => {
-            if (current !== null) {
-                return;
-            }
-            console.log("Creando nuevo sorteo...");
-            return newGame;
+    await runTransaction(gameReference, current => {
+        if (current !== null) {
+            return;
         }
-    );
+        console.log("Creando nuevo sorteo...");
+        return newGame;
+    });
 
-console.log("Transacción completada:", transactionResult);
-console.log("Resultado del sorteo:", transactionResult.snapshot.val());
+    // 🔄 Leer el nodo actualizado después de la transacción
+    const updatedSnapshot = await get(gameReference);
+    const updatedGame = updatedSnapshot.val();
 
-return transactionResult.snapshot.val();
+    if (!updatedGame || !updatedGame.results) {
+        console.error("⚠️ El sorteo no se cargó correctamente:", updatedGame);
+        throw new Error("No se pudo cargar el sorteo desde Firebase.");
+    }
 
-
+    console.log("✅ Sorteo cargado correctamente:", updatedGame);
+    return updatedGame;
 }
 
 
