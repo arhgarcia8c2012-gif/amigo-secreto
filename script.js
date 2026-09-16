@@ -122,6 +122,16 @@ const participants = [
 
 ];
 
+const predefinedPasswords = {
+  persona1: "Groot1",
+  persona2: "Jengi2",
+  persona3: "Sherk3",
+  persona4: "Aguebardo4",
+  persona5: "Ramon5",
+  persona6: "Dora6",
+  persona7: "Gollum7"
+};
+
 
 /* =========================================================
    3. ELEMENTOS HTML
@@ -675,8 +685,7 @@ revealButton.addEventListener(
 
         try {
 
-            const password =
-                generatePassword();
+const password = predefinedPasswords[selectedPerson.id];
 
             const passwordHash =
                 await hashPassword(password);
