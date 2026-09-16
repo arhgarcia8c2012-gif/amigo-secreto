@@ -1,0 +1,989 @@
+/* =========================================================
+   AMIGO SECRETO
+   HTML + CSS + JavaScript + Firebase
+   ========================================================= */
+
+
+/* =========================================================
+   1. FIREBASE
+   ========================================================= */
+
+import { initializeApp } from
+    "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+
+import {
+    getDatabase,
+    ref,
+    get,
+    set,
+    runTransaction
+} from
+    "https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js";
+
+
+/*
+    ========================================================
+    IMPORTANTE
+
+    REEMPLAZA ESTOS DATOS POR LOS DE TU PROYECTO FIREBASE.
+
+    Los encontrarás cuando registres tu aplicación web.
+    ========================================================
+*/
+
+const firebaseConfig = {
+    apiKey: "AIzaSyC5_bGgGEOQSsKudu2LpbKmKLSil7oVOYA",
+    authDomain: "amigo-secreto-2026-bdb.firebaseapp.com",
+    projectId: "amigo-secreto-2026-bdb",
+    storageBucket: "amigo-secreto-2026-bdb.firebasestorage.app",
+    messagingSenderId: "996033956741",
+    appId: "1:996033956741:web:5a90633f84bc421fb452ec",
+    measurementId: "G-5N1V15VZYH"
+  };
+
+
+/* Inicializar Firebase */
+
+const app = initializeApp(firebaseConfig);
+
+const database = getDatabase(app);
+
+
+/* =========================================================
+   2. CONFIGURACIÓN DEL SORTEO
+   =========================================================
+
+   AQUÍ COLOCAS LAS 7 PERSONAS.
+
+   IMPORTANTE:
+
+   Cada "id" debe ser diferente.
+
+   El campo "character" es el personaje que ESA PERSONA
+   tendrá disponible para ser asignado.
+
+   El campo "wish" es lo que ESA PERSONA quiere recibir.
+
+   El programa se encargará de que no se repitan.
+
+   =========================================================
+*/
+
+const participants = [
+
+    {
+        id: "persona1",
+        name: "Groot",
+        character: "Groot",
+        wish: "Audífonos de cable entrada tipo C, Crema mantequilla Trendy, Rubor en crema lotso Trendy, iluminador Toy story Trendy, loción hidratante milagros o termo de miniso de agua o bebida caliente"
+    },
+
+    {
+        id: "persona2",
+        name: "Jengi",
+        character: "Jengi",
+        wish: "Colores alusivos blanco, negro, lila o celeste, querido amigo secreto puedes sorprende con, una penca de sábila para el cabello, una loción agú tapa verde, reloj, cualquier cosa alusiva a Sullivan de monster inc, una riñonera o canguro, un termoprotector para el cabello, una maléfica para cargar el Pc y el almuercito, una cartera de presupuestos o por último una medias de compresión pero bien lindas estampadas no esas de abuelita por favor, ya te di muchas opciones 🥷🏼."
+    },
+
+    {
+        id: "persona3",
+        name: "Sherk",
+        character: "Sherk",
+        wish: "1. Cachitos para el casco de la moto  2. Morral pequeño con diseño cute 3. Cera de tamaño pequeño líquida 4. Crema o mantequilla corporal con brillitos 5. Perfume sweet black exclusive "
+    },
+
+    {
+        id: "persona4",
+        name: "Agüebardo",
+        character: "Agüebardo",
+        wish: "Tratamiento de milagros blanco y perfume para cabello café , y skin para la cara  más importante que el maquillaje lol,bolso de hombro pequeño negro  o blanco,  short y top deportivo  maquillaje  "
+    },
+
+    {
+        id: "persona5",
+        name: "don ramon",
+        character: "don ramon",
+        wish: "espejo de maquillaje con luz led, mouse inalambrico para la oficina, una lamparita decorativa de muñequitos, soporte de gafas decorativo par la oficina."
+    },
+
+    {
+        id: "persona6",
+        name: "Dora la exploradora",
+        character: "Dora la exploradora",
+        wish: "Un reloj colocar gris o blanco, un termo protector para el cabello una sombrilla de mano"
+    },
+
+    {
+        id: "persona7",
+        name: "Gollum",
+        character: "Gollum",
+        wish: "Pantuflas tipo babucha talla 39, bolso de mano, reloj, kit de skinker para el rostro "
+    }
+
+];
+
+
+/* =========================================================
+   3. ELEMENTOS HTML
+   ========================================================= */
+
+const personSelect =
+    document.getElementById("personSelect");
+
+const continueButton =
+    document.getElementById("continueButton");
+
+const loginSection =
+    document.getElementById("loginSection");
+
+const firstTimeSection =
+    document.getElementById("firstTimeSection");
+
+const passwordSection =
+    document.getElementById("passwordSection");
+
+const resultSection =
+    document.getElementById("resultSection");
+
+const revealButton =
+    document.getElementById("revealButton");
+
+const revealResult =
+    document.getElementById("revealResult");
+
+const secretName =
+    document.getElementById("secretName");
+
+const secretWish =
+    document.getElementById("secretWish");
+
+const generatedPassword =
+    document.getElementById("generatedPassword");
+
+const passwordInput =
+    document.getElementById("passwordInput");
+
+const passwordButton =
+    document.getElementById("passwordButton");
+
+const passwordError =
+    document.getElementById("passwordError");
+
+const finalSecretName =
+    document.getElementById("finalSecretName");
+
+const finalSecretWish =
+    document.getElementById("finalSecretWish");
+
+const copyPasswordButton =
+    document.getElementById("copyPasswordButton");
+
+const finishButton =
+    document.getElementById("finishButton");
+
+const logoutButton =
+    document.getElementById("logoutButton");
+
+const errorMessage =
+    document.getElementById("errorMessage");
+
+
+/* =========================================================
+   4. VARIABLES
+   ========================================================= */
+
+let selectedPerson = null;
+
+let currentData = null;
+
+
+/* =========================================================
+   5. CARGAR PERSONAS
+   ========================================================= */
+
+function loadParticipants() {
+
+    personSelect.innerHTML = `
+        <option value="">
+            Selecciona tu nombre...
+        </option>
+    `;
+
+    participants.forEach(person => {
+
+        const option =
+            document.createElement("option");
+
+        option.value = person.id;
+
+        option.textContent = person.name;
+
+        personSelect.appendChild(option);
+
+    });
+
+}
+
+
+/* =========================================================
+   6. GENERAR CONTRASEÑA
+   ========================================================= */
+
+function generatePassword() {
+
+    const characters =
+        "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+    let password = "";
+
+    for (let i = 0; i < 8; i++) {
+
+        const random =
+            Math.floor(
+                Math.random() * characters.length
+            );
+
+        password += characters[random];
+
+    }
+
+    return password;
+
+}
+
+
+/* =========================================================
+   7. HASH DE CONTRASEÑA
+   =========================================================
+
+   No guardamos la contraseña directamente.
+
+   Guardamos un hash.
+
+   =========================================================
+*/
+
+async function hashPassword(password) {
+
+    const encoder =
+        new TextEncoder();
+
+    const data =
+        encoder.encode(password);
+
+    const hashBuffer =
+        await crypto.subtle.digest(
+            "SHA-256",
+            data
+        );
+
+    const hashArray =
+        Array.from(
+            new Uint8Array(hashBuffer)
+        );
+
+    return hashArray
+        .map(
+            byte =>
+                byte
+                    .toString(16)
+                    .padStart(2, "0")
+        )
+        .join("");
+
+}
+
+
+/* =========================================================
+   8. BUSCAR DATOS DEL SORTEO
+   ========================================================= */
+
+async function getGameData() {
+
+    const gameReference =
+        ref(database, "secretGame");
+
+    const snapshot =
+        await get(gameReference);
+
+    if (!snapshot.exists()) {
+
+        return null;
+
+    }
+
+    return snapshot.val();
+
+}
+
+
+/* =========================================================
+   9. CREAR EL SORTEO
+   =========================================================
+
+   El primer participante que entre genera el sorteo.
+
+   Después todos utilizan el mismo resultado.
+
+   =========================================================
+*/
+
+async function createGameIfNeeded() {
+
+    const existingGame =
+        await getGameData();
+
+    if (existingGame) {
+
+        return existingGame;
+
+    }
+
+
+    /*
+        Crear lista de personajes.
+    */
+
+    const characters =
+        participants.map(
+            person => person.character
+        );
+
+
+    /*
+        Verificar que no existan personajes repetidos.
+    */
+
+    const uniqueCharacters =
+        new Set(characters);
+
+    if (
+        uniqueCharacters.size !==
+        participants.length
+    ) {
+
+        throw new Error(
+            "Hay personajes repetidos. Cada personaje debe ser diferente."
+        );
+
+    }
+
+
+    /*
+        Hacer una copia para mezclar.
+    */
+
+    const shuffled =
+        [...participants];
+
+
+    /*
+        Mezclar personajes.
+
+        Fisher-Yates.
+    */
+
+    for (
+        let i = shuffled.length - 1;
+        i > 0;
+        i--
+    ) {
+
+        const j =
+            Math.floor(
+                Math.random() * (i + 1)
+            );
+
+        [
+            shuffled[i],
+            shuffled[j]
+        ] =
+        [
+            shuffled[j],
+            shuffled[i]
+        ];
+
+    }
+
+
+    /*
+        Evitar que una persona se tenga a sí misma.
+
+        Si ocurre, intentamos mezclar nuevamente.
+    */
+
+    let valid = false;
+
+    let attempts = 0;
+
+    while (!valid && attempts < 1000) {
+
+        valid = true;
+
+        for (let i = 0; i < participants.length; i++) {
+
+            if (
+                participants[i].id ===
+                shuffled[i].id
+            ) {
+
+                valid = false;
+
+                break;
+
+            }
+
+        }
+
+        if (!valid) {
+
+            for (
+                let i = shuffled.length - 1;
+                i > 0;
+                i--
+            ) {
+
+                const j =
+                    Math.floor(
+                        Math.random() * (i + 1)
+                    );
+
+                [
+                    shuffled[i],
+                    shuffled[j]
+                ] =
+                [
+                    shuffled[j],
+                    shuffled[i]
+                ];
+
+            }
+
+        }
+
+        attempts++;
+
+    }
+
+
+    if (!valid) {
+
+        throw new Error(
+            "No fue posible generar un sorteo válido."
+        );
+
+    }
+
+
+    /*
+        Crear resultados.
+
+        Cada persona recibe el personaje
+        de otra persona.
+    */
+
+    const results = {};
+
+
+    participants.forEach((person, index) => {
+
+        results[person.id] = {
+
+            name:
+                person.name,
+
+            targetId:
+                shuffled[index].id,
+
+            targetCharacter:
+                shuffled[index].character,
+
+            targetWish:
+                shuffled[index].wish,
+
+            revealed:
+                false,
+
+            passwordHash:
+                null
+
+        };
+
+    });
+
+
+    const newGame = {
+
+        createdAt:
+            Date.now(),
+
+        results
+
+    };
+
+
+    /*
+        Guardar solamente si todavía no existe.
+
+        Esto ayuda a evitar que dos celulares creen
+        dos sorteos diferentes al mismo tiempo.
+    */
+
+    const gameReference =
+        ref(database, "secretGame");
+
+const transactionResult =
+    await runTransaction(
+        gameReference,
+        current => {
+            if (current !== null) {
+                return;
+            }
+            return newGame;
+        }
+    );
+
+console.log("Transacción ejecutada:", transactionResult);
+console.log("Resultado del sorteo:", transactionResult.snapshot.val());
+
+return transactionResult.snapshot.val();
+
+
+}
+
+
+/* =========================================================
+   10. SELECCIONAR PERSONA
+   ========================================================= */
+
+continueButton.addEventListener(
+    "click",
+    async () => {
+
+        errorMessage.classList.add("hidden");
+
+        const selectedId =
+            personSelect.value;
+
+
+        if (!selectedId) {
+
+            showError(
+                "Por favor selecciona tu nombre."
+            );
+
+            return;
+
+        }
+
+
+        continueButton.disabled = true;
+
+        continueButton.textContent =
+            "Cargando...";
+
+
+        try {
+
+            const game =
+                await createGameIfNeeded();
+
+            selectedPerson =
+                participants.find(
+                    person =>
+                        person.id === selectedId
+                );
+
+            currentData =
+                game.results[selectedId];
+
+
+            if (!currentData) {
+
+                throw new Error(
+                    "No se encontró la información de esta persona."
+                );
+
+            }
+
+
+            loginSection.classList.add("hidden");
+
+
+            /*
+                Si todavía no ha revelado su resultado,
+                mostramos el botón de primera consulta.
+            */
+
+            if (!currentData.revealed) {
+
+                firstTimeSection
+                    .classList
+                    .remove("hidden");
+
+            } else {
+
+                /*
+                    Si ya lo había visto,
+                    pedimos contraseña.
+                */
+
+                passwordSection
+                    .classList
+                    .remove("hidden");
+
+            }
+
+        } catch (error) {
+
+            console.error(error);
+
+            showError(
+                error.message ||
+                "Ocurrió un error."
+            );
+
+        } finally {
+
+            continueButton.disabled = false;
+
+            continueButton.textContent =
+                "🎁 Continuar";
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   11. REVELAR RESULTADO POR PRIMERA VEZ
+   ========================================================= */
+
+revealButton.addEventListener(
+    "click",
+    async () => {
+
+        revealButton.disabled = true;
+
+        revealButton.textContent =
+            "🎁 Generando...";
+
+
+        try {
+
+            const password =
+                generatePassword();
+
+            const passwordHash =
+                await hashPassword(password);
+
+
+            const gameReference =
+                ref(database, "secretGame");
+
+
+            /*
+                Transacción para impedir que el mismo
+                resultado se revele dos veces.
+            */
+
+            const transactionResult =
+                await runTransaction(
+                    gameReference,
+                    game => {
+
+                        if (!game) {
+
+                            return;
+
+                        }
+
+
+                        const personData =
+                            game.results[selectedPerson.id];
+
+
+                        if (!personData) {
+
+                            return;
+
+                        }
+
+
+                        /*
+                            Si otra persona ya lo reveló,
+                            no sobrescribimos la contraseña.
+                        */
+
+                        if (
+                            personData.revealed === true
+                        ) {
+
+                            return;
+
+                        }
+
+
+                        personData.revealed =
+                            true;
+
+                        personData.passwordHash =
+                            passwordHash;
+
+
+                        return game;
+
+                    }
+                );
+
+
+            const updatedGame =
+                transactionResult.snapshot.val();
+
+
+            currentData =
+                updatedGame.results[
+                    selectedPerson.id
+                ];
+
+
+            /*
+                Mostrar resultado.
+            */
+
+            secretName.textContent =
+                currentData.targetCharacter;
+
+            secretWish.textContent =
+                currentData.targetWish;
+
+            generatedPassword.textContent =
+                password;
+
+
+            revealResult
+                .classList
+                .remove("hidden");
+
+
+            revealButton.classList.add("hidden");
+
+
+        } catch (error) {
+
+            console.error(error);
+
+            showError(
+                "No fue posible generar el resultado."
+            );
+
+        } finally {
+
+            revealButton.disabled = false;
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   12. COPIAR CONTRASEÑA
+   ========================================================= */
+
+copyPasswordButton.addEventListener(
+    "click",
+    async () => {
+
+        const password =
+            generatedPassword.textContent;
+
+        try {
+
+            await navigator.clipboard.writeText(
+                password
+            );
+
+            copyPasswordButton.textContent =
+                "✅ Contraseña copiada";
+
+            setTimeout(() => {
+
+                copyPasswordButton.textContent =
+                    "📋 Copiar contraseña";
+
+            }, 2000);
+
+        } catch {
+
+            alert(
+                "No fue posible copiar automáticamente. Guarda la contraseña manualmente."
+            );
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   13. FINALIZAR PRIMERA CONSULTA
+   ========================================================= */
+
+finishButton.addEventListener(
+    "click",
+    () => {
+
+        firstTimeSection.classList.add("hidden");
+
+        loginSection.classList.remove("hidden");
+
+        personSelect.value = "";
+
+        selectedPerson = null;
+
+        currentData = null;
+
+    }
+);
+
+
+/* =========================================================
+   14. COMPROBAR CONTRASEÑA
+   ========================================================= */
+
+passwordButton.addEventListener(
+    "click",
+    async () => {
+
+        passwordError.classList.add("hidden");
+
+
+        const password =
+            passwordInput.value.trim();
+
+
+        if (!password) {
+
+            passwordError.textContent =
+                "Escribe tu contraseña.";
+
+            passwordError.classList.remove(
+                "hidden"
+            );
+
+            return;
+
+        }
+
+
+        try {
+
+            const hash =
+                await hashPassword(password);
+
+
+            if (
+                hash !== currentData.passwordHash
+            ) {
+
+                passwordError.textContent =
+                    "❌ Contraseña incorrecta.";
+
+                passwordError.classList.remove(
+                    "hidden"
+                );
+
+                passwordInput.value = "";
+
+                return;
+
+            }
+
+
+            /*
+                Contraseña correcta.
+            */
+
+            finalSecretName.textContent =
+                currentData.targetCharacter;
+
+            finalSecretWish.textContent =
+                currentData.targetWish;
+
+
+            passwordSection.classList.add(
+                "hidden"
+            );
+
+            resultSection.classList.remove(
+                "hidden"
+            );
+
+
+            passwordInput.value = "";
+
+
+        } catch (error) {
+
+            console.error(error);
+
+            passwordError.textContent =
+                "Ocurrió un error al comprobar la contraseña.";
+
+            passwordError.classList.remove(
+                "hidden"
+            );
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   15. SALIR
+   ========================================================= */
+
+logoutButton.addEventListener(
+    "click",
+    () => {
+
+        resultSection.classList.add("hidden");
+
+        loginSection.classList.remove("hidden");
+
+        personSelect.value = "";
+
+        selectedPerson = null;
+
+        currentData = null;
+
+    }
+);
+
+
+/* =========================================================
+   16. MOSTRAR ERROR
+   ========================================================= */
+
+function showError(message) {
+
+    errorMessage.textContent =
+        "⚠️ " + message;
+
+    errorMessage.classList.remove(
+        "hidden"
+    );
+
+}
+
+
+/* =========================================================
+   17. INICIAR
+   ========================================================= */
+
+loadParticipants();
+
+
