@@ -739,11 +739,11 @@ revealButton.addEventListener(
 
                     }
                 );
-
+console.log("Transacción completada:", transactionResult);
 
             const updatedGame =
                 transactionResult.snapshot.val();
-
+console.log("Juego actualizado:", updatedGame);
 
             currentData =
                 updatedGame.results[
