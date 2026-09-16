@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Amigo Secreto 🎁</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Firebase -->
+    <script type="module" src="script.js"></script>
+</head>
+
+<body>
+
+    <div class="background">
+        <div class="gift gift1">🎁</div>
+        <div class="gift gift2">🎀</div>
+        <div class="gift gift3">⭐</div>
+        <div class="gift gift4">🎄</div>
+    </div>
+
+    <main class="container">
+
+        <!-- ENCABEZADO -->
+        <section class="card header-card">
+
+            <div class="emoji-title">🎁</div>
+
+            <h1>Amigo Secreto</h1>
+
+            <p>
+                Descubre quién es tu amigo secreto
+            </p>
+
+            <div class="participants">
+                <span>👥</span>
+                <strong>7 participantes</strong>
+            </div>
+
+        </section>
+
+
+        <!-- SELECCIÓN DE PERSONA -->
+        <section class="card" id="loginSection">
+
+            <h2>¿Quién eres?</h2>
+
+            <p class="description">
+                Selecciona tu nombre para descubrir tu amigo secreto.
+            </p>
+
+            <label for="personSelect">
+                Tu nombre
+            </label>
+
+            <select id="personSelect">
+
+                <option value="">
+                    Selecciona tu nombre...
+                </option>
+
+            </select>
+
+            <button id="continueButton" class="main-button">
+                🎁 Continuar
+            </button>
+
+            <div id="loading" class="loading hidden">
+                Cargando...
+            </div>
+
+            <div id="errorMessage" class="error hidden"></div>
+
+        </section>
+
+
+        <!-- PRIMERA VEZ -->
+        <section class="card hidden" id="firstTimeSection">
+
+            <div class="lock-icon">
+                🎉
+            </div>
+
+            <h2>¡Tu amigo secreto está listo!</h2>
+
+            <p class="description">
+                Haz clic en el botón para descubrir a quién te corresponde.
+            </p>
+
+            <button id="revealButton" class="main-button reveal-button">
+                👀 VER MI AMIGO SECRETO
+            </button>
+
+            <div id="revealResult" class="hidden">
+
+                <div class="secret-box">
+
+                    <div class="small-title">
+                        🎭 TU AMIGO SECRETO ES
+                    </div>
+
+                    <div id="secretName" class="secret-name">
+                    </div>
+
+                    <div class="gift-info">
+
+                        <div class="gift-title">
+                            🎁 ¿Qué quiere?
+                        </div>
+
+                        <div id="secretWish" class="wish">
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="password-box">
+
+                    <div class="password-title">
+                        🔐 TU CONTRASEÑA
+                    </div>
+
+                    <div id="generatedPassword" class="password">
+                    </div>
+
+                    <p>
+                        ⚠️ <strong>GUARDA ESTA CONTRASEÑA</strong>
+                    </p>
+
+                    <p class="password-warning">
+                        La necesitarás para volver a consultar tu resultado.
+                        No se la compartas a los demás participantes.
+                    </p>
+
+                </div>
+
+                <button id="copyPasswordButton" class="secondary-button">
+                    📋 Copiar contraseña
+                </button>
+
+                <button id="finishButton" class="main-button">
+                    🔒 Entendido
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- INGRESAR CONTRASEÑA -->
+        <section class="card hidden" id="passwordSection">
+
+            <div class="lock-icon">
+                🔒
+            </div>
+
+            <h2>Resultado protegido</h2>
+
+            <p class="description">
+                Ya consultaste tu amigo secreto.
+                Introduce tu contraseña para volver a verlo.
+            </p>
+
+            <label for="passwordInput">
+                Tu contraseña
+            </label>
+
+            <input
+                type="password"
+                id="passwordInput"
+                placeholder="Escribe tu contraseña"
+                autocomplete="off"
+            >
+
+            <button id="passwordButton" class="main-button">
+                🔓 Ver mi resultado
+            </button>
+
+            <div id="passwordError" class="error hidden">
+                Contraseña incorrecta.
+            </div>
+
+        </section>
+
+
+        <!-- RESULTADO -->
+        <section class="card hidden" id="resultSection">
+
+            <div class="success-icon">
+                🎉
+            </div>
+
+            <h2>¡Este es tu amigo secreto!</h2>
+
+            <div class="secret-box">
+
+                <div class="small-title">
+                    🎭 TE TOCÓ
+                </div>
+
+                <div id="finalSecretName" class="secret-name">
+                </div>
+
+                <div class="gift-info">
+
+                    <div class="gift-title">
+                        🎁 Lo que quiere
+                    </div>
+
+                    <div id="finalSecretWish" class="wish">
+                    </div>
+
+                </div>
+
+            </div>
+
+            <button id="logoutButton" class="secondary-button">
+                🔒 Salir
+            </button>
+
+        </section>
+
+
+        <!-- INFORMACIÓN -->
+        <section class="card information">
+
+            <h3>🔐 Recuerda</h3>
+
+            <ul>
+                <li>No compartas tu contraseña.</li>
+                <li>No muestres tu pantalla a otros participantes.</li>
+                <li>Cada persona tiene un resultado diferente.</li>
+                <li>Los personajes no se repiten.</li>
+            </ul>
+
+        </section>
+
+    </main>
+
+    <footer>
+        🎁 Amigo Secreto · Sorteo privado
+    </footer>
+
+</body>
+</html>
