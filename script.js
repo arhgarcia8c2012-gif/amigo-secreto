@@ -518,32 +518,31 @@ revealButton.addEventListener("click", async () => {
         console.log("Hash generado:", passwordHash);
 
         const transactionResult = await runTransaction(gameReference, currentData => {
+            // Si no existe el juego, no hacemos nada
             if (!currentData || !currentData.results) return currentData;
 
+            // Buscar la persona correspondiente
             const personData = currentData.results[selectedPerson.id];
             if (!personData) return currentData;
 
-            // 🧩 Actualizar los datos
+            // Actualizar los datos
             personData.revealed = true;
             personData.passwordHash = passwordHash;
 
+            // Reasignar el nodo completo para que Firebase detecte el cambio
             currentData.results[selectedPerson.id] = personData;
+
             return { ...currentData };
         });
 
         console.log("Resultado actualizado:", transactionResult.snapshot.val());
 
-        // 🧩 Mostrar la contraseña generada al usuario
-        generatedPassword.textContent = password;
-
-        // 🧩 Mostrar el resultado en pantalla
+        // Mostrar el resultado en pantalla
         const updatedData = transactionResult.snapshot.val().results[selectedPerson.id];
-        secretName.textContent = updatedData.targetCharacter;
-        secretWish.textContent = updatedData.targetWish;
+        resultText.textContent = `🎁 Te tocó: ${updatedData.targetCharacter} (${updatedData.targetWish})`;
 
-        // Mostrar la sección de primera consulta con la contraseña visible
-        firstTimeSection.classList.remove("hidden");
-        resultSection.classList.add("hidden");
+        firstTimeSection.classList.add("hidden");
+        resultSection.classList.remove("hidden");
 
     } catch (error) {
         console.error(error);
