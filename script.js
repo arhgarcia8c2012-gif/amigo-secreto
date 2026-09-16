@@ -510,13 +510,14 @@ revealButton.addEventListener("click", async () => {
     try {
         const gameReference = ref(database, "secretGame");
 
-        // 🧩 Usar las contraseñas predeterminadas definidas globalmente
+        // 🧩 Usar las contraseñas predeterminadas globales
         const password = predefinedPasswords[selectedPerson.id];
 
         // 🧩 Generar hash SHA-256 antes de la transacción
         const passwordHash = await hashPassword(password);
         console.log("Hash generado:", passwordHash);
 
+        // 🧩 Ejecutar la transacción con el hash ya calculado
         const transactionResult = await runTransaction(gameReference, game => {
             if (!game) return;
 
@@ -525,7 +526,6 @@ revealButton.addEventListener("click", async () => {
 
             if (personData.revealed === true) return game;
 
-            // 🧩 Actualizar datos en Firebase
             personData.revealed = true;
             personData.passwordHash = passwordHash;
 
