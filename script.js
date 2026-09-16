@@ -678,126 +678,59 @@ revealButton.addEventListener(
     async () => {
 
         revealButton.disabled = true;
-
-        revealButton.textContent =
-            "🎁 Generando...";
-
+        revealButton.textContent = "🎁 Generando...";
 
         try {
+            // 🔐 Usar contraseña predeterminada según la persona
+            const password = predefinedPasswords[selectedPerson.id];
+            const passwordHash = await hashPassword(password);
 
-const password = predefinedPasswords[selectedPerson.id];
-
-            const passwordHash =
-                await hashPassword(password);
-
-
-            const gameReference =
-                ref(database, "secretGame");
-
+            const gameReference = ref(database, "secretGame");
 
             /*
                 Transacción para impedir que el mismo
                 resultado se revele dos veces.
             */
+            const transactionResult = await runTransaction(
+                gameReference,
+                game => {
+                    if (!game) return;
 
-            const transactionResult =
-                await runTransaction(
-                    gameReference,
-                    game => {
+                    const personData = game.results[selectedPerson.id];
+                    if (!personData) return;
 
-                        if (!game) {
+                    // Si ya fue revelado, no sobrescribimos
+                    if (personData.revealed === true) return;
 
-                            return;
+                    personData.revealed = true;
+                    personData.passwordHash = passwordHash;
 
-                        }
-
-
-                        const personData =
-                            game.results[selectedPerson.id];
-
-
-                        if (!personData) {
-
-                            return;
-
-                        }
-
-
-                        /*
-                            Si otra persona ya lo reveló,
-                            no sobrescribimos la contraseña.
-                        */
-
-                        if (
-                            personData.revealed === true
-                        ) {
-
-                            return;
-
-                        }
-
-
-                        personData.revealed =
-                            true;
-
-                        personData.passwordHash =
-                            passwordHash;
-
-
-                        return game;
-
-                    }
-                );
-
-
-            const updatedGame =
-                transactionResult.snapshot.val();
-
-
-            currentData =
-                updatedGame.results[
-                    selectedPerson.id
-                ];
-
-
-            /*
-                Mostrar resultado.
-            */
-
-            secretName.textContent =
-                currentData.targetCharacter;
-
-            secretWish.textContent =
-                currentData.targetWish;
-
-            generatedPassword.textContent =
-                password;
-
-
-            revealResult
-                .classList
-                .remove("hidden");
-
-
-            revealButton.classList.add("hidden");
-
-
-        } catch (error) {
-
-            console.error(error);
-
-            showError(
-                "No fue posible generar el resultado."
+                    // ✅ Aseguramos que la transacción devuelva el juego actualizado
+                    return game;
+                }
             );
 
+            // 🔄 Obtener datos actualizados
+            const updatedGame = transactionResult.snapshot.val();
+            currentData = updatedGame.results[selectedPerson.id];
+
+            // 🎁 Mostrar resultado
+            secretName.textContent = currentData.targetCharacter;
+            secretWish.textContent = currentData.targetWish;
+            generatedPassword.textContent = password;
+
+            revealResult.classList.remove("hidden");
+            revealButton.classList.add("hidden");
+
+        } catch (error) {
+            console.error(error);
+            showError("No fue posible generar el resultado.");
         } finally {
-
             revealButton.disabled = false;
-
         }
-
     }
 );
+
 
 
 /* =========================================================
