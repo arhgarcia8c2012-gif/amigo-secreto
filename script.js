@@ -575,98 +575,63 @@ continueButton.addEventListener(
 
         errorMessage.classList.add("hidden");
 
-        const selectedId =
-            personSelect.value;
-
+        const selectedId = personSelect.value;
 
         if (!selectedId) {
-
-            showError(
-                "Por favor selecciona tu nombre."
-            );
-
+            showError("Por favor selecciona tu nombre.");
             return;
-
         }
 
-
         continueButton.disabled = true;
-
-        continueButton.textContent =
-            "Cargando...";
-
+        continueButton.textContent = "Cargando...";
 
         try {
+            const game = await createGameIfNeeded();
 
-            const game =
-                await createGameIfNeeded();
-
-            selectedPerson =
-                participants.find(
-                    person =>
-                        person.id === selectedId
-                );
-
-            currentData =
-                game.results[selectedId];
-
-
-            if (!currentData) {
-
-                throw new Error(
-                    "No se encontró la información de esta persona."
-                );
-
+            // 🧩 Verificación para evitar error de lectura nula
+            if (!game || !game.results) {
+                showError("No se pudo cargar el sorteo. Intenta nuevamente.");
+                continueButton.disabled = false;
+                continueButton.textContent = "🎁 Continuar";
+                return;
             }
 
+            selectedPerson = participants.find(
+                person => person.id === selectedId
+            );
+
+            currentData = game.results[selectedId];
+
+            if (!currentData) {
+                throw new Error("No se encontró la información de esta persona.");
+            }
 
             loginSection.classList.add("hidden");
-
 
             /*
                 Si todavía no ha revelado su resultado,
                 mostramos el botón de primera consulta.
             */
-
             if (!currentData.revealed) {
-
-                firstTimeSection
-                    .classList
-                    .remove("hidden");
-
+                firstTimeSection.classList.remove("hidden");
             } else {
-
                 /*
                     Si ya lo había visto,
                     pedimos contraseña.
                 */
-
-                passwordSection
-                    .classList
-                    .remove("hidden");
-
+                passwordSection.classList.remove("hidden");
             }
 
         } catch (error) {
-
             console.error(error);
-
-            showError(
-                error.message ||
-                "Ocurrió un error."
-            );
-
+            showError(error.message || "Ocurrió un error.");
         } finally {
-
             continueButton.disabled = false;
-
-            continueButton.textContent =
-                "🎁 Continuar";
-
+            continueButton.textContent = "🎁 Continuar";
         }
-
     }
 );
+
 
 
 /* =========================================================
