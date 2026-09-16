@@ -510,36 +510,34 @@ revealButton.addEventListener("click", async () => {
     try {
         const gameReference = ref(database, "secretGame");
 
+        // Contraseñas predeterminadas
+        const predefinedPasswords = {
+            persona1: "Groot1",
+            persona2: "Jengi2",
+            persona3: "Sherk3",
+            persona4: "Aguebardo4",
+            persona5: "Ramon5",
+            persona6: "Dora6",
+            persona7: "Gollum7"
+        };
+
+        // 🧩 Generar hash antes de la transacción
+        const password = predefinedPasswords[selectedPerson.id];
+        const passwordHash = btoa(password); // convierte a Base64 para guardar
+
         const transactionResult = await runTransaction(gameReference, game => {
             if (!game) return;
 
             const personData = game.results[selectedPerson.id];
             if (!personData) return;
 
-            // 🧩 Si ya fue revelado, no hacemos nada
             if (personData.revealed === true) return game;
-
-            // Contraseñas predeterminadas
-            const predefinedPasswords = {
-                persona1: "claveGroot",
-                persona2: "claveJengi",
-                persona3: "claveSherk",
-                persona4: "claveAguebardo",
-                persona5: "claveRamon",
-                persona6: "claveDora",
-                persona7: "claveGollum"
-            };
-
-            // Generar hash de la contraseña correspondiente
-            const password = predefinedPasswords[selectedPerson.id];
-            const passwordHash = hashPassword(password);
 
             // 🧩 Actualizar datos en Firebase
             personData.revealed = true;
             personData.passwordHash = passwordHash;
 
             game.results[selectedPerson.id] = personData;
-
             return game;
         });
 
@@ -560,6 +558,7 @@ revealButton.addEventListener("click", async () => {
         revealButton.textContent = "🎁 Generar";
     }
 });
+
 
 /* =========================================================
    12. COPIAR CONTRASEÑA
