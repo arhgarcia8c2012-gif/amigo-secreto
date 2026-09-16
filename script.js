@@ -499,72 +499,67 @@ continueButton.addEventListener(
 );
 
 /* =========================================================
-   11. REVELAR RESULTADO POR PRIMERA VEZ
+   11. REVELAR RESULTADO
    ========================================================= */
 
-revealButton.addEventListener(
-    "click",
-    async () => {
+revealButton.addEventListener("click", async () => {
+    errorMessage.classList.add("hidden");
+    revealButton.disabled = true;
+    revealButton.textContent = "Generando...";
 
-        revealButton.disabled = true;
-        revealButton.textContent = "🎁 Generando...";
+    try {
+        const gameReference = ref(database, "secretGame");
 
-        try {
-            // 🔐 Usar contraseña predeterminada según la persona
+        const transactionResult = await runTransaction(gameReference, game => {
+            if (!game) return;
+
+            const personData = game.results[selectedPerson.id];
+            if (!personData) return;
+
+            // 🧩 Si ya fue revelado, no hacemos nada
+            if (personData.revealed === true) return game;
+
+            // Contraseñas predeterminadas
+            const predefinedPasswords = {
+                persona1: "claveGroot",
+                persona2: "claveJengi",
+                persona3: "claveSherk",
+                persona4: "claveAguebardo",
+                persona5: "claveRamon",
+                persona6: "claveDora",
+                persona7: "claveGollum"
+            };
+
+            // Generar hash de la contraseña correspondiente
             const password = predefinedPasswords[selectedPerson.id];
-            const passwordHash = await hashPassword(password);
+            const passwordHash = hashPassword(password);
 
-            const gameReference = ref(database, "secretGame");
+            // 🧩 Actualizar datos en Firebase
+            personData.revealed = true;
+            personData.passwordHash = passwordHash;
 
-            /*
-                Transacción para impedir que el mismo
-                resultado se revele dos veces.
-            */
-            const transactionResult = await runTransaction(
-                gameReference,
-                game => {
-                    if (!game) return;
+            game.results[selectedPerson.id] = personData;
 
-                    const personData = game.results[selectedPerson.id];
-                    if (!personData) return;
+            return game;
+        });
 
-                    // Si ya fue revelado, no sobrescribimos
-                    if (personData.revealed === true) return;
+        console.log("Resultado actualizado:", transactionResult.snapshot.val());
 
-                    // ✅ Actualizar datos
-                    personData.revealed = true;
-                    personData.passwordHash = passwordHash;
+        // Mostrar el resultado en pantalla
+        const updatedData = transactionResult.snapshot.val().results[selectedPerson.id];
+        resultText.textContent = `🎁 Te tocó: ${updatedData.targetCharacter} (${updatedData.targetWish})`;
 
-                    // 🔄 Forzar actualización del nodo
-                    game.results[selectedPerson.id] = personData;
+        firstTimeSection.classList.add("hidden");
+        resultSection.classList.remove("hidden");
 
-                    // ✅ Asegurar que Firebase detecte el cambio
-                    return game;
-                }
-            );
-
-            // 🔄 Obtener datos actualizados
-            const updatedGame = transactionResult.snapshot.val();
-            currentData = updatedGame.results[selectedPerson.id];
-
-            // 🎁 Mostrar resultado
-            secretName.textContent = currentData.targetCharacter;
-            secretWish.textContent = currentData.targetWish;
-            generatedPassword.textContent = password;
-
-            revealResult.classList.remove("hidden");
-            revealButton.classList.add("hidden");
-
-        } catch (error) {
-            console.error(error);
-            showError("No fue posible generar el resultado.");
-        } finally {
-            revealButton.disabled = false;
-        }
+    } catch (error) {
+        console.error(error);
+        showError(error.message || "Ocurrió un error al revelar el resultado.");
+    } finally {
+        revealButton.disabled = false;
+        revealButton.textContent = "🎁 Generar";
     }
-);
-
-
+});
 
 /* =========================================================
    12. COPIAR CONTRASEÑA
