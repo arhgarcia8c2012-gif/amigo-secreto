@@ -502,10 +502,6 @@ continueButton.addEventListener(
    11. REVELAR RESULTADO
    ========================================================= */
 
-/* =========================================================
-   11. REVELAR RESULTADO
-   ========================================================= */
-
 revealButton.addEventListener("click", async () => {
     errorMessage.classList.add("hidden");
     revealButton.disabled = true;
@@ -514,20 +510,12 @@ revealButton.addEventListener("click", async () => {
     try {
         const gameReference = ref(database, "secretGame");
 
-        // 🧩 Contraseñas predeterminadas
-        const predefinedPasswords = {
-            persona1: "claveGroot",
-            persona2: "claveJengi",
-            persona3: "claveSherk",
-            persona4: "claveAguebardo",
-            persona5: "claveRamon",
-            persona6: "claveDora",
-            persona7: "claveGollum"
-        };
-
-        // 🧩 Generar hash antes de la transacción
+        // 🧩 Usar las contraseñas predeterminadas definidas globalmente
         const password = predefinedPasswords[selectedPerson.id];
-        const passwordHash = btoa(password); // convierte a Base64 para guardar
+
+        // 🧩 Generar hash SHA-256 antes de la transacción
+        const passwordHash = await hashPassword(password);
+        console.log("Hash generado:", passwordHash);
 
         const transactionResult = await runTransaction(gameReference, game => {
             if (!game) return;
@@ -562,7 +550,6 @@ revealButton.addEventListener("click", async () => {
         revealButton.textContent = "🎁 Generar";
     }
 });
-
 
 /* =========================================================
    12. COPIAR CONTRASEÑA
