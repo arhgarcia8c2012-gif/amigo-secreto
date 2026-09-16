@@ -517,20 +517,18 @@ revealButton.addEventListener("click", async () => {
         const passwordHash = await hashPassword(password);
         console.log("Hash generado:", passwordHash);
 
-        // 🧩 Ejecutar la transacción con el hash ya calculado
-        const transactionResult = await runTransaction(gameReference, game => {
-            if (!game) return;
+        const transactionResult = await runTransaction(gameReference, currentData => {
+            if (!currentData || !currentData.results) return currentData;
 
-            const personData = game.results[selectedPerson.id];
-            if (!personData) return;
+            const personData = currentData.results[selectedPerson.id];
+            if (!personData) return currentData;
 
-            if (personData.revealed === true) return game;
-
+            // 🧩 Actualizar siempre el campo de contraseña
             personData.revealed = true;
             personData.passwordHash = passwordHash;
 
-            game.results[selectedPerson.id] = personData;
-            return game;
+            currentData.results[selectedPerson.id] = personData;
+            return currentData;
         });
 
         console.log("Resultado actualizado:", transactionResult.snapshot.val());
