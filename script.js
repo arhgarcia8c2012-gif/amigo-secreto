@@ -705,6 +705,9 @@ revealButton.addEventListener(
                     personData.revealed = true;
                     personData.passwordHash = passwordHash;
 
+                       // 🔄 Forzar actualización del nodo
+    game.results[selectedPerson.id] = personData;
+                   
                     // ✅ Aseguramos que la transacción devuelva el juego actualizado
                     return game;
                 }
