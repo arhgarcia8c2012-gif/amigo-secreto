@@ -502,6 +502,10 @@ continueButton.addEventListener(
    11. REVELAR RESULTADO
    ========================================================= */
 
+/* =========================================================
+   11. REVELAR RESULTADO
+   ========================================================= */
+
 revealButton.addEventListener("click", async () => {
     errorMessage.classList.add("hidden");
     revealButton.disabled = true;
