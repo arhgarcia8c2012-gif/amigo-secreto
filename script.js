@@ -691,7 +691,9 @@ revealButton.addEventListener(
                 Transacción para impedir que el mismo
                 resultado se revele dos veces.
             */
-
+const password = generatePassword();
+const passwordHash = btoa(password);
+           
             const transactionResult =
                 await runTransaction(
                     gameReference,
