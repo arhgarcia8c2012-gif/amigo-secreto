@@ -588,8 +588,8 @@ continueButton.addEventListener(
         try {
             const game = await createGameIfNeeded();
 
-            // 🧩 Verificación para evitar error de lectura nula
-            if (!game || !game.results) {
+            // 🧩 Verificación para evitar error de lectura nula o vacía
+            if (!game || !game.results || Object.keys(game.results).length === 0) {
                 showError("No se pudo cargar el sorteo. Intenta nuevamente.");
                 continueButton.disabled = false;
                 continueButton.textContent = "🎁 Continuar";
@@ -631,8 +631,6 @@ continueButton.addEventListener(
         }
     }
 );
-
-
 
 /* =========================================================
    11. REVELAR RESULTADO POR PRIMERA VEZ
