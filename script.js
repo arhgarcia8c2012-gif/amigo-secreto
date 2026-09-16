@@ -510,15 +510,15 @@ revealButton.addEventListener("click", async () => {
     try {
         const gameReference = ref(database, "secretGame");
 
-        // Contraseñas predeterminadas
+        // 🧩 Contraseñas predeterminadas
         const predefinedPasswords = {
-            persona1: "Groot1",
-            persona2: "Jengi2",
-            persona3: "Sherk3",
-            persona4: "Aguebardo4",
-            persona5: "Ramon5",
-            persona6: "Dora6",
-            persona7: "Gollum7"
+            persona1: "claveGroot",
+            persona2: "claveJengi",
+            persona3: "claveSherk",
+            persona4: "claveAguebardo",
+            persona5: "claveRamon",
+            persona6: "claveDora",
+            persona7: "claveGollum"
         };
 
         // 🧩 Generar hash antes de la transacción
