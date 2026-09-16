@@ -32,14 +32,15 @@ import {
 */
 
 const firebaseConfig = {
-    apiKey: "AIzaSyC5_bGgGEOQSsKudu2LpbKmKLSil7oVOYA",
-    authDomain: "amigo-secreto-2026-bdb.firebaseapp.com",
-    projectId: "amigo-secreto-2026-bdb",
-    storageBucket: "amigo-secreto-2026-bdb.firebasestorage.app",
-    messagingSenderId: "996033956741",
-    appId: "1:996033956741:web:5a90633f84bc421fb452ec",
-    measurementId: "G-5N1V15VZYH"
-  };
+  apiKey: "AIzaSyC5_bGgGEOQSsKudu2LpbKmKLSil7oVOYA",
+  authDomain: "amigo-secreto-2026-bdb.firebaseapp.com",
+  databaseURL: "https://amigo-secreto-2026-bdb-default-rtdb.firebaseio.com",
+  projectId: "amigo-secreto-2026-bdb",
+  storageBucket: "amigo-secreto-2026-bdb.firebasestorage.app",
+  messagingSenderId: "996033956741",
+  appId: "1:996033956741:web:5a90633f84bc421fb452ec",
+  measurementId: "G-5N1V15VZYH"
+};
 
 
 /* Inicializar Firebase */
